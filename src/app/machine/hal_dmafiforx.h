@@ -8,7 +8,7 @@
 #ifndef SRC_APP_MACHINE_HAL_DMAFIFORX_H_
 #define SRC_APP_MACHINE_HAL_DMAFIFORX_H_
 
-#include <machine/hal.h>
+#include <stdint.h>
 #include <assert.h>
 #include <stddef.h>
 
@@ -18,9 +18,9 @@ struct HAL_DMAfiforx_s {
 	size_t pos;
 };
 
-#define HAL_DMAI_INIT8(buf,size)   {(buf),(size)}
-#define HAL_DMAI_INIT16(buf,size)  HAL_DMAI_INIT8((uint8_t*)(buf),sizeof(uint16_t)*(size))
-#define HAL_DMAI_INIT32(buf,size)  HAL_DMAI_INIT8((uint8_t*)(buf),sizeof(uint32_t)*(size))
+#define HAL_DMAFIFORX_INIT8(buf,size)   {(buf),(size)}
+#define HAL_DMAFIFORX_INIT16(buf,size)  HAL_DMAFIFORX_INIT8((uint8_t*)(buf),sizeof(uint16_t)*(size))
+#define HAL_DMAFIFORX_INIT32(buf,size)  HAL_DMAFIFORX_INIT8((uint8_t*)(buf),sizeof(uint32_t)*(size))
 
 void HAL_DMAfiforx_reset(struct HAL_DMAfiforx_s *t);
 size_t HAL_DMAfiforx_read8(struct HAL_DMAfiforx_s *t, uint32_t dma_cndtr,
@@ -58,17 +58,12 @@ static inline size_t HAL_DMAfiforx_getsize32(const struct HAL_DMAfiforx_s *t) {
 }
 
 static inline
-uint32_t HAL_DMAfiforx_read16(struct HAL_DMAfiforx_s *t, uint32_t dma_cndtr,
-		uint16_t out[], uint32_t outlen)
-{
-	return HAL_DMAfiforx_read8(t, dma_cndtr, (uint8_t*)out, outlen*sizeof(out[0]))/sizeof(out[0]);
-}
-
-static inline
 uint32_t HAL_DMAfiforx_read32(struct HAL_DMAfiforx_s *t, uint32_t dma_cndtr,
-		uint32_t out[], uint32_t outlen)
+		uint32_t out[], size_t outlen)
 {
-	return HAL_DMAfiforx_read8(t, dma_cndtr, (uint8_t*)out, outlen*sizeof(out[0]))/sizeof(out[0]);
+	const uint32_t ret = HAL_DMAfiforx_read8(t, dma_cndtr*sizeof(out[0]), (uint8_t*)out, outlen*sizeof(out[0]))/sizeof(out[0]);
+	assert(t->pos%sizeof(out[0]) == 0);
+	return ret;
 }
 
 

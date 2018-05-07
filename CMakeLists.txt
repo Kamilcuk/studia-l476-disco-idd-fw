@@ -1,15 +1,16 @@
 cmake_minimum_required (VERSION 3.6)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/third_party/kamillibc/cmake")
 include(Toolchain/arm-none-eabi-gcc)
 set(CMAKE_SYSTEM_NAME ARM)
-set(CMAKE_SYSTEM_PROCESSOR Cortex-M0+)
+set(CMAKE_SYSTEM_PROCESSOR Cortex-M3)
 project(disco ASM C)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 string(APPEND CMAKE_C_FLAGS " -std=gnu11 -Wall -Wno-nonnull-compare")
+string(APPEND CMAKE_C_FLAGS " -O1")
 #string(APPEND CMAKE_C_FLAGS " -Ofast")
 #string(APPEND CMAKE_C_FLAGS " -flto -fno-fat-lto-objects")
 file(GLOB LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/stm32cubemx/*.ld)
@@ -21,12 +22,12 @@ add_definitions(-DSTM32L1 -DSTM32L152xC)
 
 string(APPEND CMAKE_C_FLAGS_DEBUG " -g3 -DDEBUG")
 
-include(cubemx)
+include(stm32cubemx)
 add_target_generate_mx_h(mx_h stm32cubemx ${CMAKE_SOURCE_DIR}/src/app/machine/mx.h)
 cubemx_get_c_includes(stm32cubemx third_party/STM32Cube_FW_L1 mx_inc)
 include_directories(AFTER ${mx_inc})
 cubemx_get_c_sources(stm32cubemx third_party/STM32Cube_FW_L1 mx_src)
-file(GLOB mx_asm_src stm32cubemx/*.s)
+cubemx_get_asm_sources(stm32cubemx mx_asm_src)
 add_library(hal OBJECT ${mx_asm_src} ${mx_src})
 set(hal_objs $<TARGET_OBJECTS:hal>)
 
