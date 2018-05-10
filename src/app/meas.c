@@ -41,7 +41,7 @@ double meas_calc_mean(struct meas_s *t)
 {
 	assert(t);
 	double sum = 0;
-	for(double *i = t->vals[0]; i < &t->vals[__arraycount(t->vals)]; ++i) {
+	for(double *i = &t->vals[0]; i < &t->vals[__arraycount(t->vals)]; ++i) {
 		sum += *i;
 	}
 	return sum / __arraycount(t->vals);
