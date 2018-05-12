@@ -9,7 +9,7 @@ project(iddfw ASM C)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 string(APPEND CMAKE_C_FLAGS " -std=gnu11 -Wall -Wno-nonnull-compare")
-string(APPEND CMAKE_C_FLAGS " -O1")
+string(APPEND CMAKE_C_FLAGS " -O2")
 #string(APPEND CMAKE_C_FLAGS " -Ofast -flto -fno-fat-lto-objects")
 string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.map")
 string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--print-memory-usage")
@@ -25,14 +25,17 @@ set(halrepo_dir "third_party/STM32Cube_FW_L1")
 cubemx_get_linker_script(LINKER_SCRIPT "${cubemx_dir}")
 string(APPEND CMAKE_EXE_LINKER_FLAGS " -T ${LINKER_SCRIPT}")
 
-cubemx_add_generate_mx_h_target(mx_h ${CMAKE_SOURCE_DIR}/src/app/machine/mx.h "${cubemx_dir}")
+cubemx_add_gen_cubemx_header_target(mx_h ${CMAKE_BINARY_DIR}/src/app/machine/_mx.h "${cubemx_dir}")
+include_directories(AFTER ${CMAKE_BINARY_DIR}/src/app)
 
 cubemx_add_hal_library(hal OBJECT mx_inc "${cubemx_dir}" "${halrepo_dir}")
 include_directories(AFTER ${mx_inc})
 
 include_directories(BEFORE src/app src/kamillibc src/kamillibcstm32)
-file(GLOB_RECURSE src FOLLOW_SYMLINKS src/*.c)
+file(GLOB_RECURSE src FOLLOW_SYMLINKS src/*.cpp src/*.c src/*.s)
+
 add_executable(${PROJECT_NAME} ${src} $<TARGET_OBJECTS:hal>)
+set_target_properties(${TARGET_NAME} PROPERTIES LINK_DEPENDS ${LINKER_SCRIPT})
 add_dependencies(${PROJECT_NAME} mx_h)
 target_link_libraries(${PROJECT_NAME} -specs=nosys.specs -specs=nano.specs)
 
