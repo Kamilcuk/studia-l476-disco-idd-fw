@@ -12,6 +12,7 @@
 #include <machine/uart.h>
 #include <ringbuffer.h>
 #include <try.h>
+#include <sys/types.h>
 
 static const IRQn_Type huart3_irqs[] = {DMA1_Channel2_IRQn, DMA1_Channel3_IRQn, USART3_IRQn};
 static char huart3_txbuf[16];

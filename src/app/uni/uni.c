@@ -9,7 +9,6 @@
 #include <uni/wdg.h>
 #include <machine/mx.h>
 
-__constructor
 void uni_init(void)
 {
 	uni_wdg_init();

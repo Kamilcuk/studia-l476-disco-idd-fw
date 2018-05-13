@@ -11,77 +11,92 @@
 #include <cdefs.h>
 #include <assert.h>
 
-void meas_init(struct meas_s *t) {
-	memset(t, 0, sizeof(*t));
-	meas_set_mode(t, MEAS_MODE_10K);
+static inline double accumulate_d(double first[], double *last)
+{
+	double ret = 0;
+	while(first != last) {
+		ret += *first++;
+	}
+	return ret;
+}
+static inline double mean_d(double arr[], size_t cnt)
+{
+	return accumulate_d(arr, &arr[cnt]) / (double)cnt;
 }
 
-void meas_set_mode(struct meas_s *t, enum meas_mode_e mode)
+static inline void meas_setMode_callback(enum meas_mode_e mode)
+{
+	assert(0 <= mode && mode <= MEAS_MODE_CNT);
+	struct bool4_s {
+		bool cal, sh0, sh1, sh2;
+	} vals[MEAS_MODE_CNT] = {
+			{0,0,1,1},
+			{0,1,0,1},
+			{0,1,1,0},
+			{0,1,1,1},
+	};
+	gpio_set(gpio_cal, vals[mode].cal);
+	gpio_set(gpio_sh0, vals[mode].sh0);
+	gpio_set(gpio_sh1, vals[mode].sh1);
+	gpio_set(gpio_sh2, vals[mode].sh2);
+}
+
+/* --------------------------------------------------------------- */
+
+void meas_init(struct meas_s *t) {
+	memset(t, 0, sizeof(*t));
+	meas_setMode(t, MEAS_MODE_10K);
+}
+
+void meas_setMode(struct meas_s *t, enum meas_mode_e mode)
 {
 	assert(t);
 	if (t->mode == mode) return;
-	struct bool4_s {
-		bool cal, sh0, sh1, sh2;
-	} vals = {0};
-	switch(mode) {
-	case MEAS_MODE_1:   vals = (struct bool4_s){0,0,1,1}; break;
-	case MEAS_MODE_24:  vals = (struct bool4_s){0,1,0,1}; break;
-	case MEAS_MODE_620: vals = (struct bool4_s){0,1,1,0}; break;
-	case MEAS_MODE_10K: vals = (struct bool4_s){0,1,1,1}; break;
-	default: assert(0); break;
-	}
-	gpio_set(gpio_cal, vals.cal);
-	gpio_set(gpio_sh0, vals.sh0);
-	gpio_set(gpio_sh1, vals.sh1);
-	gpio_set(gpio_sh2, vals.sh2);
+	meas_setMode_callback(mode);
 	t->mode = mode;
 }
 
-double meas_calc_mean(struct meas_s *t)
+/**
+ ^ VDD/VREF
+ |
++++      ^     +--+
+| |      |        +--+OPAMP+-^
+| | Rm   |Um      |          | Uw
++++      +     +--+          +
+ |
++++
+| |
+| | Rl
++++
+ |
+ v GND
+ */
+
+static inline double meas_Uw_to_ampere(const struct meas_s *t, double val)
+{
+	return val * meas_amp_beta / meas_Rm[t->mode];
+}
+
+void meas_handleNewData(struct meas_s *t, double vref, double val)
 {
 	assert(t);
-	double sum = 0;
-	for(double *i = &t->vals[0]; i < &t->vals[__arraycount(t->vals)]; ++i) {
-		sum += *i;
+
+	t->ampere = meas_Uw_to_ampere(t, val);
+
+	static_assert(__is_array_of_constant_known_size(t->volt),"");
+	memmove(t->volt, &t->volt[1], sizeof(t->volt)-sizeof(t->volt[1]));
+	t->volt[__arraycount(t->volt)-1] = val;
+	const double voltmean = mean_d(t->volt, __arraycount(t->volt));
+
+	const double max = vref * 90. / 100.;
+	const double min = vref * 10. / 100.;
+	if (voltmean > max) {
+		if (t->mode > 0) {
+			meas_setMode(t, t->mode-1);
+		}
+	} else if (voltmean < min) {
+		if (t->mode < MEAS_MODE_CNT) {
+			meas_setMode(t, t->mode+1);
+		}
 	}
-	return sum / __arraycount(t->vals);
-}
-
-double meas_get_mean(struct meas_s *t)
-{
-	assert(t);
-	return t->mean;
-}
-
-enum meas_mode_e meas_decide_next_mode(struct meas_s *t)
-{
-	assert(0);
-	return 0;
-}
-
-void meas_add_meas(struct meas_s *t, uint32_t meas)
-{
-	assert(t);
-	memcpy(t->vals, &t->vals[1], sizeof(t->vals)-sizeof(t->vals[1]));
-	static_assert(__is_array_of_constant_known_size(t->vals),"");
-	t->vals[__arraycount(t->vals)-1] = meas_meas_to_a(t, meas);
-	t->mean = meas_calc_mean(t);
-
-
-}
-
-unsigned long meas_get_Rmeas(struct meas_s *t)
-{
-	return t->mode;
-}
-
-double meas_meas_to_a(struct meas_s *t, unsigned long meas)
-{
-	const double resolution = MEAS_RESOLUTION;
-	const double vdd_ma = 3000.;
-	const double umeasraw = meas * vdd_ma / 1000. / resolution;
-	const double beta = MEAS_AMP_BETA;
-	const double umeas = umeasraw * beta;
-	const double imeas = umeas / meas_get_Rmeas(t);
-	return imeas;
 }

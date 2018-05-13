@@ -1,3 +1,4 @@
+
 /*
  * meas.h
  *
@@ -10,29 +11,28 @@
 
 #include <stdint.h>
 
-#define MEAS_RESOLUTION  4096 // ADC resolution is equal to 2^12
-#define MEAS_AMP_BETA    (6040./(6040.+300000.)) // TSZ122IST op-amp beta value, R1=300K R2=6K04 1/beta=~50
-
 enum meas_mode_e {
-	MEAS_MODE_NONE = 0,
-	MEAS_MODE_1 = 1,
-	MEAS_MODE_24 = 24,
-	MEAS_MODE_620 = 620,
-	MEAS_MODE_10K = 10000,
+	MEAS_MODE_1 = 0,
+	MEAS_MODE_24 = 1,
+	MEAS_MODE_620 = 2,
+	MEAS_MODE_10K = 3,
 };
+
+#define MEAS_MODE_CNT  4
 
 struct meas_s {
 	enum meas_mode_e mode;
-	double vals[5];
-	double mean;
+	double volt[5];
+	double ampere;
 };
 
+// TSZ122IST op-amp beta value, R1=300K R2=6K04 1/beta=~50
+static const double meas_amp_beta = (6040./(6040.+300000.));
+
+static const double meas_Rm[MEAS_MODE_CNT] = { 1., 24., 620., 10000., };
+
 void meas_init(struct meas_s *t);
-void meas_set_mode(struct meas_s *t, enum meas_mode_e mode);
-double meas_calc_mean(struct meas_s *t);
-double meas_get_mean(struct meas_s *t);
-enum meas_mode_e meas_decide_next_mode(struct meas_s *t);
-void meas_add_meas(struct meas_s *t, uint32_t meas);
-double meas_meas_to_a(struct meas_s *t, unsigned long meas);
+void meas_setMode(struct meas_s *t, enum meas_mode_e mode);
+void meas_handleNewData(struct meas_s *t, double vref, double val);
 
 #endif /* SRC_APP_MEAS_H_ */

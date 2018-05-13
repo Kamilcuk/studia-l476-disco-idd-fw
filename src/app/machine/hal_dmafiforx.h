@@ -61,7 +61,8 @@ static inline
 uint32_t HAL_DMAfiforx_read32(struct HAL_DMAfiforx_s *t, uint32_t dma_cndtr,
 		uint32_t out[], size_t outlen)
 {
-	const uint32_t ret = HAL_DMAfiforx_read8(t, dma_cndtr*sizeof(out[0]), (uint8_t*)out, outlen*sizeof(out[0]))/sizeof(out[0]);
+	const uint32_t ret = HAL_DMAfiforx_read8(t, dma_cndtr*sizeof(out[0]),
+			(uint8_t*)out, outlen*sizeof(out[0]))/sizeof(out[0]);
 	assert(t->pos%sizeof(out[0]) == 0);
 	return ret;
 }
