@@ -48,12 +48,13 @@ int main(void)
 	adc_on(0);
 	for(;;wdg_refresh()) {
 		const adc_val_t val = adc_get(0);
-		meas_handleNewData(&meas, val.vref, val.val);
-		printf(PRIF(9) " " PRIF(9) " " PRIF(9) " %d\n",
+		(void)meas_handleNewData(&meas, val.vref, val.val);
+		printf("%d " PRIF(9) " " PRIF(9) "\n",
+				meas.mode,
 				PRIFARGS(9, val.vref),
-				PRIFARGS(9, val.val),
-				PRIFARGS(9, meas.ampere),
-				meas.mode);
+				PRIFARGS(9, val.val)
+		);
+		fsync(STDOUT_FILENO);
 	}
 
 	return 0;

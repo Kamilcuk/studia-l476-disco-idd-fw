@@ -14,4 +14,5 @@ void uni_init(void)
 	uni_wdg_init();
 	MX_Init();
 	__HAL_RCC_CLEAR_RESET_FLAGS();
+	uni_init_std();
 }

@@ -9,14 +9,14 @@ project(iddfw ASM C)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 string(APPEND CMAKE_C_FLAGS " -std=gnu11 -Wall -Wno-nonnull-compare")
-string(APPEND CMAKE_C_FLAGS " -O2")
-#string(APPEND CMAKE_C_FLAGS " -Ofast -flto -fno-fat-lto-objects")
+#string(APPEND CMAKE_C_FLAGS " -O2")
+string(APPEND CMAKE_C_FLAGS " -g3 -DDEBUG")
+string(APPEND CMAKE_C_FLAGS " -Ofast -flto -fno-fat-lto-objects")
 string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.map")
 string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--print-memory-usage")
 
 add_definitions(-DSTM32L1 -DSTM32L152xC)
 
-string(APPEND CMAKE_C_FLAGS_DEBUG " -g3 -DDEBUG")
 
 include(stm32cubemx)
 set(cubemx_dir "stm32cubemx/iddfw")
