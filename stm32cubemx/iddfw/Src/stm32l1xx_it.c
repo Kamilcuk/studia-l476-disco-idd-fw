@@ -36,7 +36,7 @@
 #include "stm32l1xx_it.h"
 
 /* USER CODE BEGIN 0 */
-#include <breakpoint.h>
+
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -44,6 +44,8 @@ extern DMA_HandleTypeDef hdma_adc;
 extern ADC_HandleTypeDef hadc;
 extern COMP_HandleTypeDef hcomp2;
 extern I2C_HandleTypeDef hi2c1;
+extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim5;
 extern DMA_HandleTypeDef hdma_usart3_rx;
 extern DMA_HandleTypeDef hdma_usart3_tx;
 extern UART_HandleTypeDef huart3;
@@ -58,7 +60,7 @@ extern UART_HandleTypeDef huart3;
 void NMI_Handler(void)
 {
   /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
-	breakpoint();
+
   /* USER CODE END NonMaskableInt_IRQn 0 */
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
 
@@ -71,7 +73,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
-	breakpoint();
+	__BKPT(0);
   /* USER CODE END HardFault_IRQn 0 */
   while (1)
   {
@@ -89,7 +91,7 @@ void HardFault_Handler(void)
 void MemManage_Handler(void)
 {
   /* USER CODE BEGIN MemoryManagement_IRQn 0 */
-	breakpoint();
+
   /* USER CODE END MemoryManagement_IRQn 0 */
   while (1)
   {
@@ -107,7 +109,7 @@ void MemManage_Handler(void)
 void BusFault_Handler(void)
 {
   /* USER CODE BEGIN BusFault_IRQn 0 */
-	breakpoint();
+
   /* USER CODE END BusFault_IRQn 0 */
   while (1)
   {
@@ -125,7 +127,7 @@ void BusFault_Handler(void)
 void UsageFault_Handler(void)
 {
   /* USER CODE BEGIN UsageFault_IRQn 0 */
-	breakpoint();
+
   /* USER CODE END UsageFault_IRQn 0 */
   while (1)
   {
@@ -143,7 +145,7 @@ void UsageFault_Handler(void)
 void SVC_Handler(void)
 {
   /* USER CODE BEGIN SVC_IRQn 0 */
-	breakpoint();
+
   /* USER CODE END SVC_IRQn 0 */
   /* USER CODE BEGIN SVC_IRQn 1 */
 
@@ -169,7 +171,7 @@ void DebugMon_Handler(void)
 void PendSV_Handler(void)
 {
   /* USER CODE BEGIN PendSV_IRQn 0 */
-	breakpoint();
+
   /* USER CODE END PendSV_IRQn 0 */
   /* USER CODE BEGIN PendSV_IRQn 1 */
 
@@ -269,6 +271,20 @@ void COMP_IRQHandler(void)
 }
 
 /**
+* @brief This function handles TIM2 global interrupt.
+*/
+void TIM2_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM2_IRQn 0 */
+
+  /* USER CODE END TIM2_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim2);
+  /* USER CODE BEGIN TIM2_IRQn 1 */
+
+  /* USER CODE END TIM2_IRQn 1 */
+}
+
+/**
 * @brief This function handles I2C1 event interrupt.
 */
 void I2C1_EV_IRQHandler(void)
@@ -308,6 +324,20 @@ void USART3_IRQHandler(void)
   /* USER CODE BEGIN USART3_IRQn 1 */
 
   /* USER CODE END USART3_IRQn 1 */
+}
+
+/**
+* @brief This function handles TIM5 global interrupt.
+*/
+void TIM5_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM5_IRQn 0 */
+
+  /* USER CODE END TIM5_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim5);
+  /* USER CODE BEGIN TIM5_IRQn 1 */
+
+  /* USER CODE END TIM5_IRQn 1 */
 }
 
 /**

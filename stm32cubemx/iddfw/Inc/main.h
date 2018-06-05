@@ -73,7 +73,9 @@
 /* #define USE_FULL_ASSERT    1U */
 
 /* USER CODE BEGIN Private defines */
-
+#ifndef NDEBUG
+# define USE_FULL_ASSERT 1
+#endif
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

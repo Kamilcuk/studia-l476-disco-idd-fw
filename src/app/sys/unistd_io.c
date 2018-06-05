@@ -29,26 +29,14 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
 	HW_UART_dmatxrb_TxCplt_IRQHandler(&huart3_uartdmatxrb);
 }
 
-void io_fsync(int fd)
-{
-	switch(fd) {
-	case STDOUT_FILENO:
-		PWRMODE_WHILE(PWRMODE_SLEEP, !HAL_UART_IsTransmitReady(&huart3));
-		break;
-	case STDERR_FILENO:
-		while(!HAL_UART_IsTransmitReady(&huart3));
-		break;
-	}
-}
-
-ssize_t io_write(int fd, const void *ptr, size_t nbyte)
+ssize_t _write_r(struct _reent *r, int fd, const void *ptr, size_t nbyte)
 {
 	switch(fd) {
 	case STDOUT_FILENO:
 		while(nbyte) {
 			const size_t written = HW_UART_dmatxrb_write(&huart3_uartdmatxrb, ptr, nbyte);
 			if (written == 0) {
-				io_fsync(fd);
+				fsync(fd);
 			} else {
 				nbyte -= written;
 				ptr += written;
@@ -56,8 +44,8 @@ ssize_t io_write(int fd, const void *ptr, size_t nbyte)
 		}
 		break;
 	case STDERR_FILENO:
-		io_fsync(fd);
-		try( HAL_UART_Transmit(&huart3, (uint8_t*)ptr, nbyte, UINT32_MAX) == HAL_OK );
+		fsync(fd);
+		HAL_try(HAL_UART_Transmit(&huart3, (uint8_t*)ptr, nbyte, UINT32_MAX));
 		break;
 	default:
 		assert(0);
@@ -66,12 +54,15 @@ ssize_t io_write(int fd, const void *ptr, size_t nbyte)
 	return nbyte;
 }
 
-ssize_t _write_r(struct _reent *r, int fd, const void *ptr, size_t nbyte)
-{
-	return io_write(fd, ptr, nbyte);
-}
-
 int fsync(int fd)
 {
-	return io_fsync(fd), 0;
+	switch(fd) {
+	case STDOUT_FILENO:
+		while(!HAL_UART_IsTransmitReady(&huart3));
+		break;
+	case STDERR_FILENO:
+		while(!HAL_UART_IsTransmitReady(&huart3));
+		break;
+	}
+	return 0;
 }

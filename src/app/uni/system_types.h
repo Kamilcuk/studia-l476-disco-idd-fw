@@ -11,12 +11,6 @@
 #include <uni/types.h>
 #include <machine/mx.h>
 
-typedef struct {
-	double vref;
-	double val;
-} adc_val_t;
-#define __adc_val_t_defined 1
-
 static const gpio_t gpio_mfx_wakeup = GPIO_INIT(MFX_WAKEUP_GPIO_Port, MFX_WAKEUP_Pin);
 static const gpio_t gpio_cal = GPIO_INIT(CAL_GPIO_Port, CAL_Pin);
 static const gpio_t gpio_sh0 = GPIO_INIT(SH0_GPIO_Port, SH0_Pin);

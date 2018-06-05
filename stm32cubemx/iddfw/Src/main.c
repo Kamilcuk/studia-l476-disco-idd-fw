@@ -49,14 +49,13 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-#define static
+
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -68,6 +67,7 @@ void SystemClock_Config(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+void MX_Init(void) {
 #if 0
 /* USER CODE END 0 */
 
@@ -80,8 +80,6 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 #endif
-void MX_Init(void)
-{
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -109,6 +107,7 @@ void MX_Init(void)
   MX_COMP2_Init();
   MX_IWDG_Init();
   MX_TIM2_Init();
+  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
   return;
   /* USER CODE END 2 */
@@ -117,6 +116,7 @@ void MX_Init(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
@@ -194,8 +194,11 @@ void SystemClock_Config(void)
 void _Error_Handler(char *file, int line)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
+	__BKPT(0);
+}
+#if 0
   /* User can add his own implementation to report the HAL error return state */
-  while(1) 
+  while(1)
   {
   }
   /* USER CODE END Error_Handler_Debug */
@@ -213,7 +216,8 @@ void assert_failed(uint8_t* file, uint32_t line)
 { 
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
-    ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+     tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+#endif
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

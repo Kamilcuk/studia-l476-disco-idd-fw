@@ -1,12 +1,13 @@
+B=build
 all:
-	cmake -H. -BBuild
-	$(MAKE) -CBuild
+	cmake -H. -B$(B)
+	$(MAKE) -C$(B)
 .PHONY: Debug Release RelWithDebInfo MinSizeRel
 Debug Release RelWithDebInfo MinSizeRel:
-	cmake -H. -BBuild -DCMAKE_BUILD_TYPE=$@
-	$(MAKE) -CBuild
+	cmake -H. -B$(B)/$@ -DCMAKE_BUILD_TYPE=$@
+	$(MAKE) -C$(B)/$@
 .PHONY: clean
 clean:
-	rm -rf Build
+	rm -rf $(B)
 
 

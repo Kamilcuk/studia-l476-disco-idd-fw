@@ -1,6 +1,5 @@
 .settings
-Build
-src/app/machine/mx.h
+build
 
 # Prerequisites
 *.d

@@ -15,4 +15,5 @@ void uni_init(void)
 	MX_Init();
 	__HAL_RCC_CLEAR_RESET_FLAGS();
 	uni_init_std();
+	HAL_try(HAL_TIM_Base_Start_IT(&htim5));
 }
