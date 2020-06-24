@@ -27,10 +27,10 @@ struct meas_s {
 static const double meas_amp_beta = ( 6040. / ( 6040. + 300000. ) );
 static const double meas_Uref = ( 15000. / ( 300000. + 15000. ) ) * 3.3;
 static const double meas_Rm[MEAS_MODE_CNT] = {
-		1. / ( ( 1. / 1. ) + ( 1. / 10000. ) ),
-		1. / ( ( 1. / 24. ) + ( 1. / 10000. ) ),
-		1. / ( ( 1. / 620. ) + ( 1. / 10000. ) ),
-		10000.,
+		1. / ( ( 1. / 1. ) + ( 1. / 10000. ) ) ,
+		1. / ( ( 1. / 24. ) + ( 1. / 10000. ) ) ,
+		1. / ( ( 1. / 620. ) + ( 1. / 10000. ) ) ,
+		10000. ,
 };
 
 void meas_init(struct meas_s *t);

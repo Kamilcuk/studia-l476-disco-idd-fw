@@ -80,6 +80,20 @@ static inline double meas_Uw_to_ampere(const struct meas_s *t, double val)
 	return val * meas_amp_beta / meas_Rm[t->mode] + meas_Uref;
 }
 
+static inline void meas_modeDec(struct meas_s *t)
+{
+	if (t->mode > 0) {
+		meas_setMode(t, t->mode - 1);
+	}
+}
+
+static inline void meas_modeInc(struct meas_s *t)
+{
+	if (t->mode < MEAS_MODE_CNT-1) {
+		meas_setMode(t, t->mode + 1);
+	}
+}
+
 static inline void meas_chooseNewMode(struct meas_s *t, double vref, double val)
 {
 	static_assert(__is_array_of_constant_known_size(t->volt),"");
@@ -87,16 +101,37 @@ static inline void meas_chooseNewMode(struct meas_s *t, double vref, double val)
 	t->volt[__arraycount(t->volt)-1] = val;
 	const double voltmean = mean_d(t->volt, __arraycount(t->volt));
 
+#if 0
+	switch(t->mode) {
+	case MEAS_MODE_1:
+		if (v < 0.0093808630394)
+			meas_modeInc(t);
+		break;
+	case MEAS_MODE_24:
+		if (v > 0.243704305442729)
+			meas_modeDec(t);
+		else if (v < 0.026435794065164)
+			meas_modeInc(t);
+		break;
+	case MEAS_MODE_620:
+		if (v > 0.686737112602734)
+			meas_modeDec(t);
+		else if (v < 0.077491475937647)
+			meas_modeInc(t);
+		break;
+	case MEAS_MODE_10K:
+		if (v > 0.99)
+			meas_modeDec(t);
+		break;
+	}
+#endif
+
 	const double max = vref * 95. / 100.;
-	const double min = vref * 5. / 100.;
+	const double min = vref *  5. / 100.;
 	if (voltmean > max) {
-		if (t->mode > 0) {
-			meas_setMode(t, t->mode-1);
-		}
+		meas_modeDec(t);
 	} else if (voltmean < min) {
-		if (t->mode < MEAS_MODE_CNT-1) {
-			meas_setMode(t, t->mode+1);
-		}
+		meas_modeInc(t);
 	}
 }
 
